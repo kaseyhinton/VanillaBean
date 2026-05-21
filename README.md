@@ -1,5 +1,7 @@
 # VanillaBean
 
+![alt text](image.png)
+
 ### Native HTML + Pico Starter
 
 A single-file app starter that is portable, dependency-free, and self-contained — designed to run for decades with minimal maintenance.
