@@ -108,7 +108,6 @@
           userEmail: null,
           theme: localStorage.getItem("theme") ?? "light",
         };
-    state.isLoading = false;
 
     function setState(partial) {
       Object.assign(state, partial);
@@ -133,144 +132,165 @@
       setTimeout(() => setState({ isLoading: false, UUIDS: uuids }), 1200);
     }
 
-    const navbar = () => `
-  <progress ${state.isLoading ? "" : "hidden"}></progress>
-  <header class="container">
-    <nav>
-      <ul>
-        <li><a href="#/"><kbd>Generator</kbd></a></li>
-      </ul>
-      <ul>
-        <li><a href="#/account" aria-current="page">Account</a></li>
-        <li>
-          <button onclick="setState({ theme: state.theme === 'light' ? 'dark' : 'light' })">
-            ${state.theme === "dark" ? moonIcon : sunIcon}
-          </button>
-        </li>
-      </ul>
-    </nav>
-  </header>
-`;
+    const navbar = () => html`
+      <progress ${state.isLoading ? "" : "hidden"}></progress>
+      <header class="container">
+        <nav>
+          <ul>
+            <li>
+              <a href="#/"><kbd>Generator</kbd></a>
+            </li>
+          </ul>
+          <ul>
+            <li>
+              <a href="#/account">Account</a>
+            </li>
+            <li>
+              <button
+                onclick="setState({ theme: state.theme === 'light' ? 'dark' : 'light' })"
+              >
+                ${state.theme === "dark" ? sunIcon : moonIcon}
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </header>
+    `;
 
-    const accountView = () => `
-  <main class="container">
-    <header>
-      <hgroup>
-        <h1>Account</h1>
-        <p>Manage your account</p>
-      </hgroup>
-    </header>
+    const account = () => html`
+      <main class="container">
+        <header>
+          <hgroup>
+            <h1>Account</h1>
+            <p>Manage your account</p>
+          </hgroup>
+        </header>
 
-    <form>
-      <fieldset>
-        <label>
-          Email
-          <input
-            value="${state.userEmail || ""}"
-            onchange="setState({ userEmail: this.value })"
-            type="email"
-            id="email"
-            placeholder="Email"
-            autocomplete="email"
-          />
-        </label>
-
-        <label>
-          Access Level
-          <select
-            name="accessLevel"
-            aria-label="Select your access level..."
-            required
-            onchange="setState({ userAccessLevel: this.value })"
-          >
-            <option disabled ${state.userAccessLevel !== "User" && state.userAccessLevel !== "Admin" ? "selected" : ""} value="">Select your access level...</option>
-            <option value="User" ${state.userAccessLevel === "User" ? "selected" : ""}>User</option>
-            <option value="Admin" ${state.userAccessLevel === "Admin" ? "selected" : ""}>Admin</option>
-          </select>
-        </label>
-      </fieldset>
-    </form>
-  </main>
-`;
-
-    /* Home View */
-    const homeView = () => `
-  <main class="container">
-    <header>
-      <hgroup>
-        <h1>Generate Secure UID</h1>
-        <p>Free and fast UID generation</p>
-      </hgroup>
-    </header>
-
-    <hr />
-    <article>
-      <h2>Options</h2>
-      <form>
-        <fieldset>
-          <label>
-            How many to generate (${state.numberOfUUIDS})
-            <input
-              type="range"
-              value=${state.numberOfUUIDS}
-              onchange="setState({ numberOfUUIDS: event.target.value ? Number(event.target.value) : 0 })"
+        <form>
+          <fieldset>
+            <label>
+              Email
+              <input
+                value="${state.userEmail || ""}"
+                onchange="setState({ userEmail: this.value })"
+                type="email"
+                id="email"
+                placeholder="Email"
+                autocomplete="email"
               />
-          </label>
+            </label>
 
-          <label>
-            <input
-              name="terms"
-              type="checkbox"
-              role="switch"
-              onclick="setState({ isAgreedToTerms: !state.isAgreedToTerms })"
-              ${state.isAgreedToTerms ? "checked" : ""}
-            />
-            I agree to the Terms
-          </label>
-        </fieldset>
-        <button
-          right
-          ${state.isAgreedToTerms ? "" : "disabled"}
-          aria-busy="${state.isLoading}"
-          type="button"
-          onclick="generate()">
-          Generate
-        </button>
-      </form>
-    </article>
-    <article ${state.UUIDS.length ? "" : "hidden"}>  
-      <h2>Results</h2>
-      <table class="striped">
-        <thead>
-          <tr>
-            <th>Number</th>
-            <th>UUID</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${state.UUIDS.map(
-            (uuid, idx) => `
+            <label>
+              Access Level
+              <select
+                name="accessLevel"
+                required
+                onchange="setState({ userAccessLevel: this.value })"
+              >
+                <option
+                  disabled
+                  ${state.userAccessLevel !== "User" &&
+                  state.userAccessLevel !== "Admin"
+                    ? "selected"
+                    : ""}
+                  value=""
+                >
+                  Select your access level...
+                </option>
+                <option
+                  value="User"
+                  ${state.userAccessLevel === "User" ? "selected" : ""}
+                >
+                  User
+                </option>
+                <option
+                  value="Admin"
+                  ${state.userAccessLevel === "Admin" ? "selected" : ""}
+                >
+                  Admin
+                </option>
+              </select>
+            </label>
+          </fieldset>
+        </form>
+      </main>
+    `;
+
+    const home = () => html`
+      <main class="container">
+        <header>
+          <hgroup>
+            <h1>Generate Secure UID</h1>
+            <p>Free and fast UID generation</p>
+          </hgroup>
+        </header>
+
+        <hr />
+        <article>
+          <h2>Options</h2>
+          <form>
+            <fieldset>
+              <label>
+                How many to generate (${state.numberOfUUIDS})
+                <input
+                  type="range"
+                  min="1"
+                  max="20"
+                  value=${state.numberOfUUIDS}
+                  onchange="setState({ numberOfUUIDS: event.target.value ? Number(event.target.value) : 1 })"
+                />
+              </label>
+
+              <label>
+                <input
+                  name="terms"
+                  type="checkbox"
+                  role="switch"
+                  onclick="setState({ isAgreedToTerms: !state.isAgreedToTerms })"
+                  ${state.isAgreedToTerms ? "checked" : ""}
+                />
+                I agree to the Terms
+              </label>
+            </fieldset>
+            <button
+              ${state.isAgreedToTerms ? "" : "disabled"}
+              type="button"
+              onclick="generate()"
+            >
+              Generate
+            </button>
+          </form>
+        </article>
+        <article ${state.UUIDS.length ? "" : "hidden"}>
+          <h2>Results</h2>
+          <table class="striped">
+            <thead>
+              <tr>
+                <th>Number</th>
+                <th>UUID</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${state.UUIDS.map(
+                (uuid, idx) => `
             <tr>
               <td>#${idx + 1}</td>
               <td>${uuid}</td>
             </tr>`,
-          ).join("")}
-        </tbody>
-      </table>
-    </article>
-  </main>
-`;
+              ).join("")}
+            </tbody>
+          </table>
+        </article>
+      </main>
+    `;
 
-    /* Rendering */
-    handleRouteChange();
-    window.addEventListener("hashchange", handleRouteChange);
+    onRoute();
+    window.addEventListener("hashchange", onRoute);
 
     function rerender() {
       document.body.setAttribute("data-theme", state.theme);
-      document.body.innerHTML = `
-    ${navbar()}
-    ${state.route === "account" ? accountView() : homeView()}
-  `;
+      document.body.innerHTML = `${navbar()} ${state.route === "account" ? account() : home()}
+        <loading-veil ${state.isLoading ? "" : "hidden"}></loading-veil>`;
     }
   </script>
 </html>
