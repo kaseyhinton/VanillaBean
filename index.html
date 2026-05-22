@@ -93,14 +93,14 @@
       rerender();
     }
 
-    /* Routing */
-    const getRoute = () =>
-      location.hash.replace(/^#\//, "").split("/").filter(Boolean)[0] || null;
-
-    const handleRouteChange = () => {
-      setState({ route: getRoute() });
+    function onRoute() {
+      setState({
+        route:
+          location.hash.replace(/^#\//, "").split("/").filter(Boolean)[0] ||
+          null,
+      });
       scrollTo(0, 0);
-    };
+    }
 
     function generate() {
       setState({ isLoading: true });
